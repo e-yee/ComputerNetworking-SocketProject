@@ -22,6 +22,7 @@ void signalHandler(int signum) {
 		sServer.Send(termination_message.c_str(), message_size, 0);
 		sServer.Close();
 	}
+
 	exit(signum);
 }
 

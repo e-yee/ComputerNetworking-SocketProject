@@ -54,7 +54,7 @@ void registerRequestingFiles(queue<string>& requesting_files) {
 }
 
 bool receiveDownloadData(string filename, CSocket& sClient) {
-	string path = "C:\\output\\" + filename;
+	string path = OUTPUT_PATH + filename;
 	ofstream ofs(path.c_str(), ios::binary);
 
 	int file_size = 0;

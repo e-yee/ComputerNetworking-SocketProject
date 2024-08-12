@@ -69,7 +69,8 @@ void getListOfFileSize(vector<int>& file_size_list, vector<File> requesting_list
 	ifstream ifs;
 	int file_size = 0;
 	for (int i = start; i < requesting_list.size(); ++i) {
-		ifs.open(requesting_list[i].name, ios::binary);
+		string path = TESTING_FILES_PATH + requesting_list[i].name;
+		ifs.open(path.c_str(), ios::binary);
 
 		ifs.seekg(0, ios::end);
 		file_size = ifs.tellg();
@@ -94,7 +95,8 @@ void sendListOfFileSize(vector<int> file_size_list, CSocket& sConnector, int sta
 }
 
 void getFileHeaders(queue<Header>& file_headers, string fname) {
-	ifstream ifs(fname.c_str(), ios::binary);
+	string path = TESTING_FILES_PATH + fname;
+	ifstream ifs(path.c_str(), ios::binary);
 	if (!ifs.good()) {
 		cout << "Fail to open " << fname << "!\n";
 		return;
@@ -207,8 +209,8 @@ DWORD WINAPI uploadProcess(LPVOID arg) {
 	getDownloadableFiles(downloadable_list, filename);
 	sendDownloadableFiles(downloadable_list, sConnector);
 
-	int downloadable_list_size = downloadable_list.size();
-	sConnector.Send(&downloadable_list_size, sizeof(int), 0);
+	int downloadable_files = downloadable_list.size();
+	sConnector.Send(&downloadable_files, sizeof(int), 0);
 
 	int start = 0;
 	bool connection = true;
@@ -234,7 +236,7 @@ DWORD WINAPI uploadProcess(LPVOID arg) {
 	int number_of_chunks = 0;
 	int chunk_count = 0;
 	int difference = 0;
-	int downloaded_files = requesting_list.size();
+	int downloading_files = requesting_list.size();
 	Header header;
 	vector<ifstream> ifs_list;
 
@@ -257,14 +259,18 @@ DWORD WINAPI uploadProcess(LPVOID arg) {
 					ifs_list.push_back(move(ifs));
 				}
 				else if (header.position == "end") {
-					--downloaded_files;
+					--downloading_files;
 					++chunk_count;
 					--number_of_chunks;
-					--downloadable_list_size;
+					--downloadable_files;
 					ifs_list[i].close();
 
 					int response = 1;
-					if (downloadable_list_size == 0) {
+					//response = 1: uploaded file successfully
+					//response = 2: uploaded all files
+
+					if (downloadable_files == 0) {
+						downloading_files = -1;
 						response = 2;
 						sConnector.Send(&response, sizeof(int), 0);
 						break;
@@ -302,7 +308,7 @@ DWORD WINAPI uploadProcess(LPVOID arg) {
 						return 0;
 					}
 
-					downloaded_files += requesting_list.size() - start;
+					downloading_files += requesting_list.size() - start;
 
 					//Send list of file size to Client
 					getListOfFileSize(file_size_list, requesting_list, start);
@@ -311,7 +317,7 @@ DWORD WINAPI uploadProcess(LPVOID arg) {
 			}
 		}
 
-		if (downloaded_files == 0) {
+		if (downloading_files == 0) {
 			Sleep(10000);
 
 			//Receive difference after timeout
@@ -329,7 +335,7 @@ DWORD WINAPI uploadProcess(LPVOID arg) {
 					return 0;
 				}
 
-				downloaded_files += requesting_list.size() - start;
+				downloading_files += requesting_list.size() - start;
 
 				//Send list of file size to Client
 				getListOfFileSize(file_size_list, requesting_list, start);
@@ -337,6 +343,7 @@ DWORD WINAPI uploadProcess(LPVOID arg) {
 			}
 			else break;
 		}
+		else if (downloading_files == -1) break;
 	} while (1);
 
 	delete h_connected;

@@ -46,7 +46,7 @@ void sendFileList(vector<File>& file_list, CSocket& sConnector) {
 
 
 void uploadFile(string filename, CSocket& sConnector, bool& connection) {
-	string path = "D:\\TestingFiles\\" + filename;
+	string path = TESTING_FILES_PATH + filename;
 	ifstream ifs(path.c_str(), ios::binary);
 	if (!ifs.is_open()) {
 		cout << "Failed to open " << filename << "\n";

@@ -105,7 +105,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[]) {
 	int bytes_received = 0;
 	int chunk_count = 0;
 	int chunk_size = 0;
-	int downloaded_files = thread_requesting_list.size();
+	int downloading_files = thread_requesting_list.size();
 
 	//Receive data
 	do {
@@ -126,21 +126,25 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[]) {
 
 			//Handle chunk position
 			if (header.position == "start") {
-				string path = "C:\\output\\" + header.filename;
+				string path = OUTPUT_PATH + header.filename;
 				ofstream ofs(path.c_str(), ios::app | ios::binary);
 				ofs_list.push_back(move(ofs));
 			}
 			else if (header.position == "end") {
-				--downloaded_files;
+				--downloading_files;
 				++chunk_count;
 				--number_of_chunks;
 				ofs_list[file_position].close();
 
-				int response = 0;
+				int response = 0; 
+				//response = 1: downloaded file successfully
+				//response = 2: downloaded all files
+
 				sClient.Receive((char*)&response, sizeof(int), 0);
 
 				if (response == 2) {
-					cout << "Client has downloaded all files";
+					downloading_files = -1;
+					cout << "\n           <<< All available files downloaded. Disconnecting... >>>\n\n\n";
 					break;
 				}
 
@@ -167,17 +171,20 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[]) {
 			if (difference == 1) {
 				difference = 0;
 
+				//Send requesting files to Server
 				sendRequestingFiles(thread_requesting_list, sClient, start);
 				for (int i = start; i < thread_requesting_list.size(); ++i)
 					downloading_progress.push_back(0);
 
-				downloaded_files += thread_requesting_list.size() - start;
+				//Update number of downloading files
+				downloading_files += thread_requesting_list.size() - start;
 
+				//Receive list of file size
 				receiveListOfFileSize(file_size_list, sClient);
 			}
 		}
 
-		if (downloaded_files == 0) {
+		if (downloading_files == 0) {
 			cout << "\nYou have 10 seconds to input more files\n";
 			Sleep(10000);
 
@@ -192,14 +199,18 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[]) {
 				for (int i = start; i < thread_requesting_list.size(); ++i)
 					downloading_progress.push_back(0);
 
-				downloaded_files += thread_requesting_list.size() - start;
+				//Update number of downloading files
+				downloading_files += thread_requesting_list.size() - start;
 
 				//Receive list of file size
 				receiveListOfFileSize(file_size_list, sClient);
 			}
 			else break;
 		}
+		else if (downloading_files == -1) break;
 	} while (1);
-	
+
+	sClient.Close();
+	cout << "           <<< Disconnected! >>>\n";
 	return n_ret_code;
 }

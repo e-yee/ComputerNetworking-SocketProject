@@ -35,4 +35,5 @@
 #include "Function.h"
 
 #define MAX_CHUNK_SIZE 32768
+#define OUTPUT_PATH "C:\\output\\"
 // TODO: reference additional headers your program requires here

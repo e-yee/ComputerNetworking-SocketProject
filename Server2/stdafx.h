@@ -38,4 +38,5 @@
 
 #include "Function.h"
 #define MAX_CHUNK_SIZE 32768
+#define TESTING_FILES_PATH "D:\\TestingFiles\\"
 // TODO: reference additional headers your program requires here
