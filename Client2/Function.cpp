@@ -114,11 +114,16 @@ void receiveChunk(ofstream& ofs, CSocket& sClient, int chunk_size, int& bytes) {
 	delete[] buffer;
 }
 
+void setCursorPosition(int x, int y) {
+	COORD coord = { static_cast<SHORT>(x), static_cast<SHORT>(y) };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
 void displayProgress(const vector<int> current_progress, const vector<int> total_progress, const vector<File> files, int downloadable_files) {
 	for (int i = 0; i < current_progress.size(); i++) {
 		float percentage = 1.0 * current_progress[i] / total_progress[i];
 
-		cout << "\x1b[" << i + 10 + downloadable_files << ";0H";
+		setCursorPosition(0, i + 10 + downloadable_files);
 		cout << "Downloading: " << files[i].name << ": [";
 
 		if (percentage >= 1) {
