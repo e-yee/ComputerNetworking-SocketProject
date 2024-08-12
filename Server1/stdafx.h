@@ -37,4 +37,6 @@
 #include <queue>
 
 #include "Function.h"
+
+#define MAX_CHUNK_SIZE 32768
 // TODO: reference additional headers your program requires here

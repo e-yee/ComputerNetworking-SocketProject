@@ -89,17 +89,17 @@ bool receiveDownloadData(string filename, CSocket& sClient) {
 	delete[] buffer;
 
 	bytes_received = 0;
-	char* rest_buffer;
+	char* remaining_data;
 	while (file_size > 0) {
-		rest_buffer = new char[file_size];
+		remaining_data = new char[file_size];
 
-		bytes_received = sClient.Receive(rest_buffer, file_size, 0);
+		bytes_received = sClient.Receive(remaining_data, file_size, 0);
 		sClient.Send(&bytes_received, sizeof(int), 0);
-		ofs.write(rest_buffer, bytes_received);
+		ofs.write(remaining_data, bytes_received);
 
 		file_size -= bytes_received;
 
-		delete[] rest_buffer;
+		delete[] remaining_data;
 	}
 
 	displayDownloadProgress(1, 1, filename);

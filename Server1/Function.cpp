@@ -46,7 +46,8 @@ void sendFileList(vector<File>& file_list, CSocket& sConnector) {
 
 
 void uploadFile(string filename, CSocket& sConnector, bool& connection) {
-	ifstream ifs(filename.c_str(), ios::binary);
+	string path = "D:\\TestingFiles\\" + filename;
+	ifstream ifs(path.c_str(), ios::binary);
 	if (!ifs.is_open()) {
 		cout << "Failed to open " << filename << "\n";
 		return;
@@ -61,12 +62,11 @@ void uploadFile(string filename, CSocket& sConnector, bool& connection) {
 	int bytes_sent = 0;
 	int bytes_received = 0;
 	int bytes_offset = 0;
-	int chunk_size = 32768;
-	char chunk[32768] = {};
-	while (file_size >= chunk_size) {
-		ifs.read(chunk, chunk_size);
+	char* chunk = new char[MAX_CHUNK_SIZE];
+	while (file_size >= MAX_CHUNK_SIZE) {
+		ifs.read(chunk, MAX_CHUNK_SIZE);
 
-		bytes_sent = chunk_size;
+		bytes_sent = MAX_CHUNK_SIZE;
 		sConnector.Send(chunk, bytes_sent, 0);
 		sConnector.Receive((char*)&bytes_received, sizeof(int), 0);
 		
@@ -88,8 +88,9 @@ void uploadFile(string filename, CSocket& sConnector, bool& connection) {
 			}
 		}
 
-		file_size -= chunk_size;
+		file_size -= MAX_CHUNK_SIZE;
 	}
+	delete[] chunk;
 
 	bytes_sent = bytes_received = 0;
 	char* remaining_chunk;

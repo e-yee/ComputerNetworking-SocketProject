@@ -58,6 +58,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[]) {
 	while (1) {
 		registerRequestingFiles(requesting_files);
 
+		//Update requesting list
 		if (!requesting_files.empty()) {
 			while (find(downloaded.begin(), downloaded.end(), requesting_files.front()) != downloaded.end()) {
 				requesting_files.pop();
@@ -78,7 +79,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[]) {
 		}
 
 		if (response == 0) {
-			cout << "           <<< All available files downloaded. Disconnecting... >>>\n\n\n";
+			cout << "\n           <<< All available files downloaded. Disconnecting... >>>\n\n\n";
 			break;
 		}
 	}
