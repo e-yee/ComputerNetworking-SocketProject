@@ -43,7 +43,12 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[]) {
 	}
 
 	sClient.Create();
-	while (sClient.Connect(_T("127.0.0.1"), 1234) == 0) {
+
+	cout << "Enter Server's IP: ";
+	string IP; getline(cin, IP);
+	system("cls");
+
+	while (sClient.Connect(CA2W(IP.c_str()), PORT) == 0) {
 		cout << "\r<<< Server connection failed >>>\n";
 		return n_ret_code;	
 	}

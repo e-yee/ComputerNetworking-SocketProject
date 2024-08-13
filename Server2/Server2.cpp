@@ -27,6 +27,8 @@ void signalHandler(int signum) {
 }
 
 int _tmain(int argc, TCHAR* argv[], TCHAR* envp[]) {
+	signal(SIGINT, signalHandler);
+
 	int n_ret_code = 0;
 
 	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0)) {

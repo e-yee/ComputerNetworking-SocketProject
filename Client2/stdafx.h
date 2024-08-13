@@ -32,8 +32,11 @@
 #include <csignal>
 #include <string>
 #include <vector>
+#include <atlconv.h>
 
 #include "Function.h"
+
+#define PORT 1234
 #define MAX_CHUNK_SIZE 32768
 #define OUTPUT_PATH "C:\\ouput\\"
 // TODO: reference additional headers your program requires here
