@@ -255,7 +255,8 @@ DWORD WINAPI uploadProcess(LPVOID arg) {
 
 				//Handle chunk position
 				if (header.position == "start") {
-					ifstream ifs(header.filename.c_str(), ios::binary);
+					string path = TESTING_FILES_PATH + header.filename;
+					ifstream ifs(path.c_str(), ios::binary);
 					ifs_list.push_back(move(ifs));
 				}
 				else if (header.position == "end") {
